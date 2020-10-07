@@ -4,8 +4,10 @@ import java.util.List;
 
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -32,18 +34,30 @@ public class UsuarioController {
 	}
 
 	@GET
-	@Path("/usuario/test/{nombre}")
+	@Path("/test/{nombre}")
 	public Response test(@PathParam("nombre") String nombre) {
 		return Response.ok("Test Variable ::" + nombre).build();
 	}
 
 	@POST
 	@Path("/usuario/login")
-	@ApiOperation(value = "Login de usuario", 
-		notes = "Campos obligatorios : usuario, clave", 
-		response = Usuario.class)
+	@ApiOperation(value = "Login de usuario", notes = "Campos obligatorios : usuario, clave", response = Usuario.class)
 	public Response login(@Valid Usuario usuario) {
 		return Response.ok(usuarioService.login(usuario)).build();
+	}
+	@POST
+	@Path("/usuario")
+	@ApiOperation(value = "Creacion de usuario", response = Usuario.class)
+	public Response creacionUsuario(@Valid Usuario usuario) {
+		usuarioService.crearUsuario(usuario);
+		return Response.ok().build();
+	}
+	@PUT
+	@Path("/usuario")
+	@ApiOperation(value = "Creacion de usuario", response = Usuario.class)
+	public Response actualizacionUsuario(@Valid Usuario usuario) {
+		usuarioService.actualizarUsuario(usuario);
+		return Response.ok().build();
 	}
 
 	@GET
@@ -53,5 +67,19 @@ public class UsuarioController {
 				usuarioService.obtenerTiposCredito()) {
 		};
 		return Response.accepted(entity).build();
+	}
+	
+	@GET
+	@Path("/usuario/{id}")
+	@ApiOperation(value = "Creacion de usuario", response = Usuario.class)
+	public Response creacionUsuario(@PathParam("id")Integer id) {
+		return Response.ok(usuarioService.obtenerUsuario(id)).build();
+	}
+	@DELETE
+	@Path("/usuario/{id}")
+	@ApiOperation(value = "Creacion de usuario", response = Usuario.class)
+	public Response eliminarUsuario(@PathParam("id")Integer id) {
+		usuarioService.eliminarUsuario(id);
+		return Response.ok().build();
 	}
 }

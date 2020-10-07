@@ -26,4 +26,18 @@ public class UsuarioService {
 		return tipoCreditoRepository.obtenerTiposCredito();
 	}
 
+	public void crearUsuario(Usuario usuario) {
+		usuarioRepository.crear(usuario);
+
+	}
+
+	public Usuario obtenerUsuario(Integer id) {
+		return usuarioRepository.obtenerUsuarioPorId(id);
+	}
+	public void actualizarUsuario(Usuario usuario) {
+		usuarioRepository.actualizar(usuario);
+	}
+	public void eliminarUsuario(Integer id) {
+		usuarioRepository.eliminar(id);
+	}
 }
