@@ -6,7 +6,6 @@ import java.util.List;
 
 import com.usuario.demo.repository.GenericRepository;
 import com.usuario.demo.service.SqlUtil;
-import com.usuario.demo.service.exception.UniqueConstraintException;
 
 public class UsuarioRepositoryImpl extends GenericRepository<Usuario> implements UsuarioRepository {
 
@@ -63,7 +62,7 @@ public class UsuarioRepositoryImpl extends GenericRepository<Usuario> implements
 		} catch (SQLException e) {
 			switch (SqlUtil.typeOfException(e)) {
 			case INTEGRITY_CONSTRAINT_VIOLATION:
-				throw new UniqueConstraintException("El nombre de usuario ya existe.");
+				throw new Exception("El nombre de usuario ya existe.");
 			default:
 				throw new Exception("Ocurrio un error desconocido");
 			}
@@ -79,7 +78,7 @@ public class UsuarioRepositoryImpl extends GenericRepository<Usuario> implements
 		} catch (SQLException e) {
 			switch (SqlUtil.typeOfException(e)) {
 			case INTEGRITY_CONSTRAINT_VIOLATION:
-				throw new UniqueConstraintException("El nombre de usuario ya existe.");
+				throw new Exception("El nombre de usuario ya existe.");
 
 			default:
 				throw new Exception("Ocurrio un error desconocido");
@@ -95,7 +94,7 @@ public class UsuarioRepositoryImpl extends GenericRepository<Usuario> implements
 		} catch (SQLException e) {
 			switch (SqlUtil.typeOfException(e)) {
 			case INTEGRITY_CONSTRAINT_VIOLATION:
-				throw new UniqueConstraintException("El nombre de usuario ya existe.");
+				throw new Exception("El nombre de usuario ya existe.");
 
 			default:
 				throw new Exception("Ocurrio un error desconocido");
@@ -112,7 +111,7 @@ public class UsuarioRepositoryImpl extends GenericRepository<Usuario> implements
 		} catch (SQLException e) {
 			switch (SqlUtil.typeOfException(e)) {
 			case INTEGRITY_CONSTRAINT_VIOLATION:
-				throw new UniqueConstraintException("El nombre de usuario ya existe.");
+				throw new Exception("El nombre de usuario ya existe.");
 
 			default:
 				throw new Exception("Ocurrio un error desconocido");

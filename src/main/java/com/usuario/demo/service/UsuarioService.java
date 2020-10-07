@@ -26,11 +26,11 @@ public class UsuarioService {
 		return usuarioRepository.obtenerUsuarioPorId(id);
 	}
 
-	public void actualizarUsuario(Usuario usuario) throws Exception {
-		usuarioRepository.actualizar(usuario);
+	public Integer actualizarUsuario(Usuario usuario) throws Exception {
+		return usuarioRepository.actualizar(usuario);
 	}
 
-	public void eliminarUsuario(Integer id) throws Exception {
-		usuarioRepository.eliminar(id);
+	public Integer eliminarUsuario(Integer id) throws Exception {
+		return usuarioRepository.eliminar(id);
 	}
 }

@@ -35,7 +35,7 @@ public class UsuarioController {
 	@ApiOperation(value = "Login de usuario", notes = "Campos obligatorios : usuario, clave", response = Usuario.class)
 	public Response login(@Valid Usuario usuario) {
 		GenericResponse response = new GenericResponse();
-		try {			
+		try {
 			response.setBody(usuarioService.login(usuario));
 			response.setMessage("El usuario se logeo correctamente");
 			return Response.ok(response).build();
@@ -69,11 +69,11 @@ public class UsuarioController {
 			usuarioService.actualizarUsuario(usuario);
 			response.setMessage("Se actualizó correctamente el usuario");
 			return Response.ok(response).build();
-		}catch(Exception e) {
+		} catch (Exception e) {
 			response.getError().add(e.getMessage());
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(response).build();
 		}
-		
+
 	}
 
 	@GET
@@ -83,18 +83,18 @@ public class UsuarioController {
 		GenericResponse response = new GenericResponse();
 		try {
 			Usuario usuario = usuarioService.obtenerUsuario(id);
-			if(usuario.getId()!= null) {
+			if (usuario.getId() != null) {
 				response.setBody(usuario);
-				response.setMessage("Se encontro al usuario con ID:"+id);
-			}else {
-				response.setMessage("No se encontro al usuario con ID:"+id);
+				response.setMessage("Se encontro al usuario con ID:" + id);
+			} else {
+				response.setMessage("No se encontro al usuario con ID:" + id);
 			}
 			return Response.ok(response).build();
-		}catch(Exception e) {
+		} catch (Exception e) {
 			response.getError().add(e.getMessage());
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(response).build();
 		}
-		
+
 	}
 
 	@DELETE
@@ -103,13 +103,17 @@ public class UsuarioController {
 	public Response eliminarUsuario(@PathParam("id") Integer id) {
 		GenericResponse response = new GenericResponse();
 		try {
-			usuarioService.eliminarUsuario(id);
-			response.setMessage("Se eliminó al usuario correctamente");
+			Integer rowAffected = usuarioService.eliminarUsuario(id);
+			if (rowAffected == 0) {
+				response.setMessage("No se elimino ningun usuario");
+			} else {
+				response.setMessage("Se eliminó al usuario correctamente");
+			}
 			return Response.ok(response).build();
-		}catch(Exception e) {
+		} catch (Exception e) {
 			response.getError().add(e.getMessage());
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(response).build();
 		}
-		
+
 	}
 }
