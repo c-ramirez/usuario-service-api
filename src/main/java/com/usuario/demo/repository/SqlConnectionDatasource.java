@@ -6,8 +6,6 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
-import lombok.extern.java.Log;
-@Log
 public class SqlConnectionDatasource implements SqlConnection{
 	private Connection connection = null;
 	Properties properties = new Properties();
@@ -25,7 +23,6 @@ public class SqlConnectionDatasource implements SqlConnection{
 				String url = properties.getProperty("database.url");
 				Class.forName(driver);
 				connection = DriverManager.getConnection(url, username, password);
-				log.info("Connection Succesful");
 			}
 		} catch (ClassNotFoundException | SQLException ex) {
 			ex.printStackTrace();
