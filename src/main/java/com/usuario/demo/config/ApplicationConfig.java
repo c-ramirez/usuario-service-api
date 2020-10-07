@@ -6,6 +6,8 @@ import java.util.Set;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
+import com.usuario.demo.controller.RequestException;
+import com.usuario.demo.controller.TipoCreditoController;
 import com.usuario.demo.controller.UsuarioController;
 
 import io.swagger.jaxrs.config.BeanConfig;
@@ -26,6 +28,8 @@ public class ApplicationConfig extends Application {
 	public Set<Class<?>> getClasses() {
 		Set<Class<?>> resources = new HashSet<Class<?>>();
 		resources.add(UsuarioController.class);
+		resources.add(RequestException.class);
+		resources.add(TipoCreditoController.class);
 		resources.add(io.swagger.jaxrs.listing.ApiListingResource.class);
 		resources.add(io.swagger.jaxrs.listing.SwaggerSerializers.class);
 		return resources;

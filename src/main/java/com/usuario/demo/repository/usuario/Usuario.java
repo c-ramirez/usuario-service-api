@@ -8,8 +8,8 @@ public class Usuario {
 	Integer id;
 	@NotNull(message = "El nombre de usuario es obligatorio")
 	String usuario;
-	@NotNull(message = "El nombre de usuario es obligatorio")
-	@Size(min = 5, max = 9,  message = "La contraseña debe tener entre {min} y {max} caracteres")
+	@NotNull(message = "La clave es obligatorio")
+	@Size(min = 8, max = 32,  message = "La clave debe tener entre {min} y {max} caracteres")
 	String clave;
 	String nombres;
 	String apellidos;

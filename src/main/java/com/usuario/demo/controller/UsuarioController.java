@@ -1,7 +1,5 @@
 package com.usuario.demo.controller;
 
-import java.util.List;
-
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -11,11 +9,10 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
-import com.usuario.demo.repository.tipocredito.TipoCredito;
 import com.usuario.demo.repository.usuario.Usuario;
 import com.usuario.demo.service.UsuarioService;
 
@@ -25,7 +22,7 @@ import io.swagger.annotations.ApiOperation;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Api(tags = { "1.0" })
-@Path("/v1")
+@Path("/v1/usuario")
 public class UsuarioController {
 	UsuarioService usuarioService;
 
@@ -33,53 +30,86 @@ public class UsuarioController {
 		usuarioService = new UsuarioService();
 	}
 
-	@GET
-	@Path("/test/{nombre}")
-	public Response test(@PathParam("nombre") String nombre) {
-		return Response.ok("Test Variable ::" + nombre).build();
-	}
-
 	@POST
-	@Path("/usuario/login")
+	@Path("/login")
 	@ApiOperation(value = "Login de usuario", notes = "Campos obligatorios : usuario, clave", response = Usuario.class)
 	public Response login(@Valid Usuario usuario) {
-		return Response.ok(usuarioService.login(usuario)).build();
+		GenericResponse response = new GenericResponse();
+		try {			
+			response.setBody(usuarioService.login(usuario));
+			response.setMessage("El usuario se logeo correctamente");
+			return Response.ok(response).build();
+		} catch (Exception e) {
+			response.getError().add(e.getMessage());
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(response).build();
+		}
 	}
+
 	@POST
-	@Path("/usuario")
-	@ApiOperation(value = "Creacion de usuario", response = Usuario.class)
+	@Path("")
+	@ApiOperation(value = "Creacion de usuario")
 	public Response creacionUsuario(@Valid Usuario usuario) {
-		usuarioService.crearUsuario(usuario);
-		return Response.ok().build();
+		GenericResponse response = new GenericResponse();
+		try {
+			usuarioService.crearUsuario(usuario);
+			response.setMessage("Se creó el usuario correctamente");
+			return Response.ok(response).build();
+		} catch (Exception e) {
+			response.getError().add(e.getMessage());
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(response).build();
+		}
 	}
+
 	@PUT
-	@Path("/usuario")
-	@ApiOperation(value = "Creacion de usuario", response = Usuario.class)
+	@Path("")
+	@ApiOperation(value = "Actualizacion de usuario")
 	public Response actualizacionUsuario(@Valid Usuario usuario) {
-		usuarioService.actualizarUsuario(usuario);
-		return Response.ok().build();
+		GenericResponse response = new GenericResponse();
+		try {
+			usuarioService.actualizarUsuario(usuario);
+			response.setMessage("Se actualizó correctamente el usuario");
+			return Response.ok(response).build();
+		}catch(Exception e) {
+			response.getError().add(e.getMessage());
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(response).build();
+		}
+		
 	}
 
 	@GET
-	@Path("/credito")
-	public Response tiposCredito() {
-		GenericEntity<List<TipoCredito>> entity = new GenericEntity<List<TipoCredito>>(
-				usuarioService.obtenerTiposCredito()) {
-		};
-		return Response.accepted(entity).build();
+	@Path("/{id}")
+	@ApiOperation(value = "Obtener usuario", response = Usuario.class)
+	public Response obtenerUsuarioPorId(@PathParam("id") Integer id) {
+		GenericResponse response = new GenericResponse();
+		try {
+			Usuario usuario = usuarioService.obtenerUsuario(id);
+			if(usuario.getId()!= null) {
+				response.setBody(usuario);
+				response.setMessage("Se encontro al usuario con ID:"+id);
+			}else {
+				response.setMessage("No se encontro al usuario con ID:"+id);
+			}
+			return Response.ok(response).build();
+		}catch(Exception e) {
+			response.getError().add(e.getMessage());
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(response).build();
+		}
+		
 	}
-	
-	@GET
-	@Path("/usuario/{id}")
-	@ApiOperation(value = "Creacion de usuario", response = Usuario.class)
-	public Response creacionUsuario(@PathParam("id")Integer id) {
-		return Response.ok(usuarioService.obtenerUsuario(id)).build();
-	}
+
 	@DELETE
-	@Path("/usuario/{id}")
-	@ApiOperation(value = "Creacion de usuario", response = Usuario.class)
-	public Response eliminarUsuario(@PathParam("id")Integer id) {
-		usuarioService.eliminarUsuario(id);
-		return Response.ok().build();
+	@Path("/{id}")
+	@ApiOperation(value = "Eliminar usuario")
+	public Response eliminarUsuario(@PathParam("id") Integer id) {
+		GenericResponse response = new GenericResponse();
+		try {
+			usuarioService.eliminarUsuario(id);
+			response.setMessage("Se eliminó al usuario correctamente");
+			return Response.ok(response).build();
+		}catch(Exception e) {
+			response.getError().add(e.getMessage());
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(response).build();
+		}
+		
 	}
 }

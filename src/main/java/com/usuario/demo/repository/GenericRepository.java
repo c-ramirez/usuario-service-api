@@ -8,7 +8,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import com.usuario.demo.repository.usuario.IGenericRepository;
-
+import com.usuario.demo.service.SqlUtil;
 
 public abstract class GenericRepository<T> implements IGenericRepository<T> {
 	protected Connection connection;
@@ -19,133 +19,117 @@ public abstract class GenericRepository<T> implements IGenericRepository<T> {
 		connection = sqlConnection.getConnection();
 	}
 
-	public T findById(String sql, Mapper<T> mapper, Object id) {
+	public T findById(String sql, Mapper<T> mapper, Object id) throws SQLException {
 		PreparedStatement statement = null;
 		ResultSet result = null;
-		String tableName = camelToSnake(getTableNameFromClass()).toUpperCase();
+		String tableName = SqlUtil.camelToSnake(getTableNameFromClass()).toUpperCase();
 		final String findById = "SELECT * from " + tableName + " WHERE " + sql;
 		try {
 			statement = connection.prepareStatement(findById);
 			statement.setObject(1, id);
 			result = statement.executeQuery();
 			return mapper.processQuery(result);
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return null;
 		} finally {
 			if (result != null)
-				try {
-					result.close();
-					if (statement != null)
-						statement.close();
-					if (connection != null)
-						connection.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
+				result.close();
+			if (statement != null)
+				statement.close();
+			if (connection != null)
+				connection.close();
 		}
 	}
 
-	public List<T> findAll(Mapper<List<T>> mapper) {
+	public List<T> findAll(Mapper<List<T>> mapper) throws SQLException {
 		PreparedStatement statement = null;
 		ResultSet result = null;
-		String tableName = camelToSnake(getTableNameFromClass()).toUpperCase();
+		String tableName = SqlUtil.camelToSnake(getTableNameFromClass()).toUpperCase();
 		final String findAll = "SELECT * from " + tableName;
 		try {
 			statement = connection.prepareStatement(findAll);
 			result = statement.executeQuery();
 			return mapper.processQuery(result);
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return null;
 		} finally {
 			if (result != null)
-				try {
-					result.close();
-					if (statement != null)
-						statement.close();
-					if (connection != null)
-						connection.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
+				result.close();
+			if (statement != null)
+				statement.close();
+			if (connection != null)
+				connection.close();
 		}
 	}
 
-	public void save(String sql, Object... args) {
+	public Integer save(String sql, Object... args) throws SQLException {
 		PreparedStatement statement = null;
 		try {
 			statement = connection.prepareStatement(sql);
 			for (int i = 1; i <= args.length; i++) {
 				statement.setObject(i, args[i - 1]);
 			}
-			
-			statement.executeUpdate();
+			return statement.executeUpdate();
 
-		} catch (SQLException e) {
-			e.printStackTrace();
 		} finally {
 			if (statement != null)
-				try {
-					statement.close();
-					if (connection != null)
-						connection.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
+				statement.close();
+			if (connection != null)
+				connection.close();
 		}
 	}
 
-	public void update(String sql, Object... args) {
+	public Integer update(String sql, Object... args) throws SQLException {
 		PreparedStatement statement = null;
 		try {
 			statement = connection.prepareStatement(sql);
 			for (int i = 1; i <= args.length; i++) {
 				statement.setObject(i, args[i - 1]);
 			}
-			statement.executeUpdate();
-		} catch (SQLException e) {
-			e.printStackTrace();
+			return statement.executeUpdate();
 		} finally {
 			if (statement != null)
-				try {
-					statement.close();
-
-					if (connection != null)
-						connection.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
+				statement.close();
+			if (connection != null)
+				connection.close();
 		}
 	}
 
-	public void delete(String sql, Object... args) {
+	public Integer delete(String sql, Object... args) throws SQLException {
 		PreparedStatement statement = null;
-		String tableName = camelToSnake(getTableNameFromClass()).toUpperCase();
+		String tableName = SqlUtil.camelToSnake(getTableNameFromClass()).toUpperCase();
 		final String delete = "DELETE FROM " + tableName + " WHERE " + sql;
 		try {
 			statement = connection.prepareStatement(delete);
 			for (int i = 1; i <= args.length; i++) {
 				statement.setObject(i, args[i - 1]);
 			}
-			statement.executeUpdate();
-		} catch (SQLException e) {
-			e.printStackTrace();
+			return statement.executeUpdate();
 		} finally {
 			if (statement != null)
-				try {
-					statement.close();
-
-					if (connection != null)
-						connection.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
+				statement.close();
+			if (connection != null)
+				connection.close();
 		}
 	}
 
-	public T makeQuery(String sql, Mapper<T> mapper, Object... args) {
+	public T makeQuery(String sql, Mapper<T> mapper, Object... args) throws SQLException {
+		PreparedStatement statement = null;
+		ResultSet result = null;
+		try {
+			statement = connection.prepareStatement(sql);
+			for (int i = 1; i <= args.length; i++) {
+				statement.setObject(i, args[i - 1]);
+			}
+			result = statement.executeQuery();
+			return mapper.processQuery(result);
+		} finally {
+			if (result != null)
+				result.close();
+			if (statement != null)
+				statement.close();
+			if (connection != null)
+				connection.close();
+		}
+	}
 
+	public List<T> makeQueryList(String sql, Mapper<List<T>> mapper, Object... args) throws SQLException {
 		PreparedStatement statement = null;
 		ResultSet result = null;
 		try {
@@ -157,49 +141,13 @@ public abstract class GenericRepository<T> implements IGenericRepository<T> {
 
 			return mapper.processQuery(result);
 
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return null;
 		} finally {
 			if (result != null)
-				try {
-					result.close();
-					if (statement != null)
-						statement.close();
-					if (connection != null)
-						connection.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-		}
-	}
-
-	public List<T> makeQueryList(String sql, Mapper<List<T>> mapper, Object... args) {
-		PreparedStatement statement = null;
-		ResultSet result = null;
-		try {
-			statement = connection.prepareStatement(sql);
-			for (int i = 1; i <= args.length; i++) {
-				statement.setObject(i, args[i - 1]);
-			}
-			result = statement.executeQuery();
-
-			return mapper.processQuery(result);
-
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return null;
-		} finally {
-			if (result != null)
-				try {
-					result.close();
-					if (statement != null)
-						statement.close();
-					if (connection != null)
-						connection.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
+				result.close();
+			if (statement != null)
+				statement.close();
+			if (connection != null)
+				connection.close();
 		}
 	}
 
@@ -208,9 +156,5 @@ public abstract class GenericRepository<T> implements IGenericRepository<T> {
 		Class<T> typeOfT = (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass())
 				.getActualTypeArguments()[0];
 		return typeOfT.getSimpleName();
-	}
-
-	private String camelToSnake(String name) {
-		return name.replaceAll("([A-Z]+)([A-Z][a-z])", "$1_$2").replaceAll("([a-z])([A-Z])", "$1_$2");
 	}
 }
