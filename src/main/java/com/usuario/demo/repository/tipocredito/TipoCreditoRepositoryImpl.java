@@ -6,7 +6,6 @@ import java.util.List;
 
 import com.usuario.demo.repository.GenericRepository;
 import com.usuario.demo.service.SqlUtil;
-import com.usuario.demo.service.exception.UniqueConstraintException;
 
 public class TipoCreditoRepositoryImpl extends GenericRepository<TipoCredito> implements TipoCreditoRepository {
 
@@ -26,7 +25,7 @@ public class TipoCreditoRepositoryImpl extends GenericRepository<TipoCredito> im
 		} catch (SQLException e) {
 			switch (SqlUtil.typeOfException(e)) {
 			case INTEGRITY_CONSTRAINT_VIOLATION:
-				throw new UniqueConstraintException("El nombre de usuario ya existe.");
+				throw new Exception("El nombre de usuario ya existe.");
 
 			default:
 				throw new Exception("Ocurrio un error desconocido");
