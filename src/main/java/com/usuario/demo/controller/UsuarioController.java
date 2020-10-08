@@ -5,9 +5,6 @@ import java.util.Set;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
-import javax.validation.Validation;
-import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -20,12 +17,15 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import com.usuario.demo.repository.usuario.Login;
-import com.usuario.demo.repository.usuario.Register;
-import com.usuario.demo.repository.usuario.Usuario;
-import com.usuario.demo.service.Messages;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.usuario.demo.repository.entity.Usuario;
+import com.usuario.demo.repository.validationgroup.Login;
+import com.usuario.demo.repository.validationgroup.Register;
 import com.usuario.demo.service.UsuarioService;
 import com.usuario.demo.service.exception.BussinesException;
+import com.usuario.demo.service.util.Messages;
+import com.usuario.demo.service.util.ValidatorUtil;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -36,32 +36,32 @@ import io.swagger.annotations.ApiOperation;
 @Path("/v1/usuario")
 public class UsuarioController {
 	UsuarioService usuarioService;
-	ValidatorFactory factory = null;
-	Validator validator = null;
+	ObjectMapper objectMapper = null;
 	Messages messages;
+
 	public UsuarioController() {
 		usuarioService = new UsuarioService();
-		factory = Validation.buildDefaultValidatorFactory();
-		validator = factory.getValidator();
 		messages = Messages.getInstance();
+		objectMapper = new ObjectMapper();
 	}
 
 	@POST
 	@Path("/login")
 	@ApiOperation(value = "Login de usuario", notes = "Campos obligatorios : usuario, clave", response = GenericResponse.class)
 	public Response login(Usuario usuario) {
-
-		Set<ConstraintViolation<Usuario>> violations = validator.validate(usuario, Login.class);
+		Set<ConstraintViolation<Usuario>> violations = ValidatorUtil.validation(usuario, Login.class);
 		if (!violations.isEmpty())
 			throw new ConstraintViolationException(violations);
-
 		GenericResponse response = new GenericResponse();
 		try {
 			response.setBody(usuarioService.login(usuario));
 			response.setMessage(messages.getMessage("info.usuario.login.ok"));
-			return Response.ok(response).build();
+			return Response.ok(objectMapper.writeValueAsString(response)).build();
 		} catch (BussinesException e) {
 			response.getError().add(e.getMessage());
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(response).build();
+		} catch (JsonProcessingException ex) {
+			response.getError().add(ex.getMessage());
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(response).build();
 		}
 
@@ -71,12 +71,12 @@ public class UsuarioController {
 	@Path("")
 	@ApiOperation(value = "Creacion de usuario", response = GenericResponse.class)
 	public Response creacionUsuario(Usuario usuario) {
-		Set<ConstraintViolation<Usuario>> violations = validator.validate(usuario, Register.class);
+		Set<ConstraintViolation<Usuario>> violations = ValidatorUtil.validation(usuario, Register.class);
 		if (!violations.isEmpty())
 			throw new ConstraintViolationException(violations);
 		GenericResponse response = new GenericResponse();
 		try {
-			usuarioService.crearUsuario(usuario);
+			usuarioService.save(usuario);
 			response.setMessage(messages.getMessage("info.usuario.create.ok"));
 			return Response.status(Status.CREATED).entity(response).build();
 		} catch (BussinesException e) {
@@ -91,7 +91,7 @@ public class UsuarioController {
 	public Response actualizacionUsuario(@Valid Usuario usuario) {
 		GenericResponse response = new GenericResponse();
 		try {
-			usuarioService.actualizarUsuario(usuario);
+			usuarioService.update(usuario);
 			response.setMessage(messages.getMessage("info.usuario.update.ok"));
 			return Response.ok(response).build();
 		} catch (BussinesException e) {
@@ -107,12 +107,15 @@ public class UsuarioController {
 	public Response obtenerUsuarioPorId(@PathParam("id") Integer id) {
 		GenericResponse response = new GenericResponse();
 		try {
-			Usuario usuario = usuarioService.obtenerUsuario(id);
+			Usuario usuario = usuarioService.findById(id);
 			response.setBody(usuario);
-			response.setMessage(messages.getMessage("info.usuario.find.ok",id));
-			return Response.ok(response).build();
+			response.setMessage(messages.getMessage("info.usuario.find.ok", id));
+			return Response.ok(objectMapper.writeValueAsString(response)).build();
 		} catch (BussinesException e) {
 			response.getError().add(e.getMessage());
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(response).build();
+		} catch (JsonProcessingException ex) {
+			response.getError().add(ex.getMessage());
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(response).build();
 		}
 
@@ -124,7 +127,7 @@ public class UsuarioController {
 	public Response eliminarUsuario(@PathParam("id") Integer id) {
 		GenericResponse response = new GenericResponse();
 		try {
-			usuarioService.eliminarUsuario(id);
+			usuarioService.delete(id);
 			response.setMessage(messages.getMessage("info.usuario.delete.ok"));
 			return Response.ok(response).build();
 		} catch (BussinesException e) {

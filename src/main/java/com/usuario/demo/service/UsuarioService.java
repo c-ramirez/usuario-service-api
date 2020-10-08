@@ -1,10 +1,14 @@
 package com.usuario.demo.service;
 
-import com.usuario.demo.repository.usuario.Usuario;
-import com.usuario.demo.repository.usuario.UsuarioRepository;
-import com.usuario.demo.repository.usuario.UsuarioRepositoryImpl;
+import java.sql.SQLException;
+
+import com.usuario.demo.repository.dao.UsuarioRepository;
+import com.usuario.demo.repository.entity.Usuario;
+import com.usuario.demo.repository.impl.UsuarioRepositoryImpl;
 import com.usuario.demo.service.exception.BussinesException;
-import com.usuario.demo.service.exception.DatabaseException;
+import com.usuario.demo.service.exception.SqlExceptionType;
+import com.usuario.demo.service.util.Messages;
+import com.usuario.demo.service.util.SqlUtil;
 
 public class UsuarioService {
 	UsuarioRepository usuarioRepository;
@@ -16,51 +20,71 @@ public class UsuarioService {
 	}
 
 	public Usuario login(Usuario usuario) throws BussinesException {
+
 		try {
-			Usuario usuarioDB = usuarioRepository.obtenerUsuario(usuario.getUsuario(), usuario.getClave());
-			if (usuarioDB.getId() == null)
-				throw new BussinesException(messages.getMessage("error.database.usuario.usuario.notFound", usuario.getUsuario()));
+			usuarioRepository.startTransaction();
+			Integer userCount = usuarioRepository.countByUsuario(usuario.getUsuario());
+			if (userCount == 0)
+				throw new BussinesException(
+						messages.getMessage("error.database.usuario.usuario.notFound", usuario.getUsuario()));
+			Usuario usuarioDB = usuarioRepository.findByUsuarioAndClave(usuario.getUsuario(), usuario.getClave());
+			if (usuarioDB.isEmpty())
+				throw new BussinesException(
+						messages.getMessage("error.database.usuario.password.notFound", usuario.getUsuario()));
+
+			usuarioRepository.commit();
 			return usuarioDB;
-
-		} catch (DatabaseException e) {
-			throw new BussinesException(e.getMessage());
+		} catch (SQLException ex) {
+			try {
+				usuarioRepository.rollback();
+			} catch (SQLException e) {
+				e.printStackTrace();
+				throw new BussinesException(messages.getMessage("error.database.general"));
+			}
+			throw new BussinesException(messages.getMessage("error.database.general"));
 		}
 	}
 
-	public void crearUsuario(Usuario usuario) throws BussinesException {
+	public void save(Usuario usuario) throws BussinesException {
 		try {
-			usuarioRepository.crear(usuario);
-		} catch (DatabaseException e) {
-			throw new BussinesException(e.getMessage());
+			usuarioRepository.save(usuario);
+		} catch (SQLException e) {
+			SqlExceptionType type = SqlUtil.typeOfException(e);
+			if (type == SqlExceptionType.INTEGRITY_CONSTRAINT_VIOLATION)
+				throw new BussinesException(messages.getMessage("error.database.usuario.usuario.unique"));
+			else
+				throw new BussinesException(messages.getMessage("error.database.general"));
 		}
 	}
 
-	public Usuario obtenerUsuario(Integer id) throws BussinesException {
+	public Usuario findById(Integer id) throws BussinesException {
 		try {
-			Usuario usuario = usuarioRepository.obtenerUsuarioPorId(id);
-			if (usuario.getId() == null)
+			Usuario usuario = usuarioRepository.findById(id);
+			if (usuario.isEmpty())
 				throw new BussinesException(messages.getMessage("error.database.usuario.id.notFound", id));
 			return usuario;
-		} catch (DatabaseException e) {
-			throw new BussinesException(e.getMessage());
+		} catch (SQLException e) {
+			throw new BussinesException(messages.getMessage("error.database.general"));
 		}
 	}
 
-	public Integer actualizarUsuario(Usuario usuario) throws BussinesException {
+	public void update(Usuario usuario) throws BussinesException {
 		try {
-			return usuarioRepository.actualizar(usuario);
-		} catch (DatabaseException e) {
-			throw new BussinesException(e.getMessage());
+			Integer affectedRows = usuarioRepository.update(usuario);
+			if (affectedRows == 0)
+				throw new BussinesException(messages.getMessage("error.database.usuario.update"));
+		} catch (SQLException e) {
+			throw new BussinesException(messages.getMessage("error.database.general"));
 		}
 	}
 
-	public void eliminarUsuario(Integer id) throws BussinesException {
+	public void delete(Integer id) throws BussinesException {
 		try {
-			Integer registrosEliminados = usuarioRepository.eliminar(id);
-			if (registrosEliminados == 0)
+			Integer affectedRows = usuarioRepository.delete(id);
+			if (affectedRows == 0)
 				throw new BussinesException(messages.getMessage("error.database.usuario.delete"));
-		} catch (DatabaseException e) {
-			throw new BussinesException(e.getMessage());
+		} catch (SQLException e) {
+			throw new BussinesException(messages.getMessage("error.database.general"));
 		}
 	}
 }
