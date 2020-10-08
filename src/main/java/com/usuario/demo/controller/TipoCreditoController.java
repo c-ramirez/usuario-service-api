@@ -11,6 +11,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import com.usuario.demo.service.TipoCreditoService;
+import com.usuario.demo.service.exception.BussinesException;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -35,7 +36,7 @@ public class TipoCreditoController {
 			response.setBody(tipoCreditoService.obtenerTiposCredito());
 			response.setMessage("Se consiguio la lista de tipos de credito");
 			return Response.ok(response).build();
-		}catch(Exception e) {
+		}catch(BussinesException e) {
 			response.getError().add(e.getMessage());
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(response).build();
 		}

@@ -1,5 +1,6 @@
 package com.usuario.demo.repository.tipocredito;
 
+
 public class TipoCredito {
 	Integer id;
 	String nombre;

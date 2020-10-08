@@ -1,9 +1,12 @@
 package com.usuario.demo.controller;
 
 import java.util.ArrayList;
+import java.util.List;
+
 
 public class GenericResponse {
-	ArrayList<String> error;
+	
+	List<String> error;
 	String message;
 	Object body;
 
@@ -16,11 +19,11 @@ public class GenericResponse {
 		this.body = body;
 	}
 
-	public ArrayList<String> getError() {
+	public List<String> getError() {
 		return error;
 	}
 
-	public void setError(ArrayList<String> error) {
+	public void setError(List<String> error) {
 		this.error = error;
 	}
 
