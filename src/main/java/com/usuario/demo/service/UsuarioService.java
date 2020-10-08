@@ -16,7 +16,11 @@ public class UsuarioService {
 
 	public Usuario login(Usuario usuario) throws BussinesException {
 		try {
-			return usuarioRepository.obtenerUsuario(usuario.getUsuario(), usuario.getClave());
+			Usuario usuarioDB = usuarioRepository.obtenerUsuario(usuario.getUsuario(), usuario.getClave());
+			if (usuarioDB.getId() == null)
+				throw new BussinesException("No se encontro al usuario con nombre:" +usuario.getUsuario());
+			return usuarioDB;
+
 		} catch (DatabaseException e) {
 			throw new BussinesException(e.getMessage());
 		}
@@ -52,7 +56,7 @@ public class UsuarioService {
 	public void eliminarUsuario(Integer id) throws BussinesException {
 		try {
 			Integer registrosEliminados = usuarioRepository.eliminar(id);
-			if(registrosEliminados == 0)
+			if (registrosEliminados == 0)
 				throw new BussinesException("No se eliminó ningun usuario");
 		} catch (DatabaseException e) {
 			throw new BussinesException(e.getMessage());

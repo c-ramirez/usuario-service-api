@@ -1,6 +1,13 @@
 package com.usuario.demo.controller;
 
+import java.util.Set;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -13,6 +20,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import com.usuario.demo.repository.usuario.Login;
+import com.usuario.demo.repository.usuario.Register;
 import com.usuario.demo.repository.usuario.Usuario;
 import com.usuario.demo.service.UsuarioService;
 import com.usuario.demo.service.exception.BussinesException;
@@ -26,15 +35,24 @@ import io.swagger.annotations.ApiOperation;
 @Path("/v1/usuario")
 public class UsuarioController {
 	UsuarioService usuarioService;
+	ValidatorFactory factory = null;
+	Validator validator = null;
 
 	public UsuarioController() {
 		usuarioService = new UsuarioService();
+		factory = Validation.buildDefaultValidatorFactory();
+		validator = factory.getValidator();
 	}
 
 	@POST
 	@Path("/login")
 	@ApiOperation(value = "Login de usuario", notes = "Campos obligatorios : usuario, clave", response = GenericResponse.class)
-	public Response login(@Valid Usuario usuario) {
+	public Response login(Usuario usuario) {
+
+		Set<ConstraintViolation<Usuario>> violations = validator.validate(usuario, Login.class);
+		if (!violations.isEmpty())
+			throw new ConstraintViolationException(violations);
+
 		GenericResponse response = new GenericResponse();
 		try {
 			response.setBody(usuarioService.login(usuario));
@@ -44,12 +62,16 @@ public class UsuarioController {
 			response.getError().add(e.getMessage());
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(response).build();
 		}
+
 	}
 
 	@POST
 	@Path("")
 	@ApiOperation(value = "Creacion de usuario", response = GenericResponse.class)
-	public Response creacionUsuario(@Valid Usuario usuario) {
+	public Response creacionUsuario(Usuario usuario) {
+		Set<ConstraintViolation<Usuario>> violations = validator.validate(usuario, Register.class);
+		if (!violations.isEmpty())
+			throw new ConstraintViolationException(violations);
 		GenericResponse response = new GenericResponse();
 		try {
 			usuarioService.crearUsuario(usuario);
