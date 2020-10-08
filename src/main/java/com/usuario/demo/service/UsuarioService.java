@@ -8,17 +8,18 @@ import com.usuario.demo.service.exception.DatabaseException;
 
 public class UsuarioService {
 	UsuarioRepository usuarioRepository;
+	Messages messages;
 
 	public UsuarioService() {
 		usuarioRepository = new UsuarioRepositoryImpl();
-
+		messages = Messages.getInstance();
 	}
 
 	public Usuario login(Usuario usuario) throws BussinesException {
 		try {
 			Usuario usuarioDB = usuarioRepository.obtenerUsuario(usuario.getUsuario(), usuario.getClave());
 			if (usuarioDB.getId() == null)
-				throw new BussinesException("No se encontro al usuario con nombre:" +usuario.getUsuario());
+				throw new BussinesException(messages.getMessage("error.database.usuario.usuario.notFound", usuario.getUsuario()));
 			return usuarioDB;
 
 		} catch (DatabaseException e) {
@@ -38,7 +39,7 @@ public class UsuarioService {
 		try {
 			Usuario usuario = usuarioRepository.obtenerUsuarioPorId(id);
 			if (usuario.getId() == null)
-				throw new BussinesException("No se encontro al usuario con ID:" + id);
+				throw new BussinesException(messages.getMessage("error.database.usuario.id.notFound", id));
 			return usuario;
 		} catch (DatabaseException e) {
 			throw new BussinesException(e.getMessage());
@@ -57,7 +58,7 @@ public class UsuarioService {
 		try {
 			Integer registrosEliminados = usuarioRepository.eliminar(id);
 			if (registrosEliminados == 0)
-				throw new BussinesException("No se eliminó ningun usuario");
+				throw new BussinesException(messages.getMessage("error.database.usuario.delete"));
 		} catch (DatabaseException e) {
 			throw new BussinesException(e.getMessage());
 		}
