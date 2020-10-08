@@ -7,15 +7,12 @@ import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
 @Provider
-public class RequestException implements ExceptionMapper<ConstraintViolationException> {
+public class BadRequestHandler implements ExceptionMapper<ConstraintViolationException> {
 
-	
 	@Produces("application/json")
 	public Response toResponse(ConstraintViolationException exception) {
 		GenericResponse response = new GenericResponse();
-		exception.getConstraintViolations().stream().forEach(error -> {
-			response.getError().add(error.getMessage());
-		});
+		exception.getConstraintViolations().stream().forEach(error -> response.getError().add(error.getMessage()));
 		return Response.status(Response.Status.BAD_REQUEST).entity(response).build();
 	}
 

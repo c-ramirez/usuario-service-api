@@ -16,7 +16,11 @@ public abstract class GenericRepository<T> implements IGenericRepository<T> {
 
 	public GenericRepository() {
 		sqlConnection = new SqlConnectionDatasource();
-		connection = sqlConnection.getConnection();
+		try {
+			connection = sqlConnection.getConnection();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public T findById(String sql, Mapper<T> mapper, Object id) throws SQLException {
@@ -34,8 +38,7 @@ public abstract class GenericRepository<T> implements IGenericRepository<T> {
 				result.close();
 			if (statement != null)
 				statement.close();
-			if (connection != null)
-				connection.close();
+			connection.close();
 		}
 	}
 
@@ -53,8 +56,7 @@ public abstract class GenericRepository<T> implements IGenericRepository<T> {
 				result.close();
 			if (statement != null)
 				statement.close();
-			if (connection != null)
-				connection.close();
+			connection.close();
 		}
 	}
 
@@ -70,24 +72,7 @@ public abstract class GenericRepository<T> implements IGenericRepository<T> {
 		} finally {
 			if (statement != null)
 				statement.close();
-			if (connection != null)
-				connection.close();
-		}
-	}
-
-	public Integer update(String sql, Object... args) throws SQLException {
-		PreparedStatement statement = null;
-		try {
-			statement = connection.prepareStatement(sql);
-			for (int i = 1; i <= args.length; i++) {
-				statement.setObject(i, args[i - 1]);
-			}
-			return statement.executeUpdate();
-		} finally {
-			if (statement != null)
-				statement.close();
-			if (connection != null)
-				connection.close();
+			connection.close();
 		}
 	}
 
@@ -104,8 +89,7 @@ public abstract class GenericRepository<T> implements IGenericRepository<T> {
 		} finally {
 			if (statement != null)
 				statement.close();
-			if (connection != null)
-				connection.close();
+			connection.close();
 		}
 	}
 
@@ -124,8 +108,7 @@ public abstract class GenericRepository<T> implements IGenericRepository<T> {
 				result.close();
 			if (statement != null)
 				statement.close();
-			if (connection != null)
-				connection.close();
+			connection.close();
 		}
 	}
 
@@ -146,8 +129,7 @@ public abstract class GenericRepository<T> implements IGenericRepository<T> {
 				result.close();
 			if (statement != null)
 				statement.close();
-			if (connection != null)
-				connection.close();
+			connection.close();
 		}
 	}
 

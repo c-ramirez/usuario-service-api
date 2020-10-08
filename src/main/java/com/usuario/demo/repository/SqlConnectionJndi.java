@@ -18,7 +18,7 @@ public class SqlConnectionJndi implements SqlConnection{
 	}
 
 	@Override
-	public synchronized Connection getConnection() {
+	public synchronized Connection getConnection() throws SQLException {
 		try {
 			if (connection == null) {
 				properties.load(SqlConnectionDatasource.class.getResourceAsStream("/app.properties"));
@@ -26,11 +26,7 @@ public class SqlConnectionJndi implements SqlConnection{
 				DataSource ds = (DataSource) initContext.lookup(properties.getProperty("database.jndi"));
 				connection = ds.getConnection();
 			}
-		} catch ( SQLException ex) {
-			ex.printStackTrace();
-		} catch (NamingException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
+		}  catch (NamingException | IOException e) {
 			e.printStackTrace();
 		} 
 		return connection;

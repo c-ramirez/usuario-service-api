@@ -1,19 +1,13 @@
 package com.usuario.demo.config;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import javax.ws.rs.ApplicationPath;
-import javax.ws.rs.core.Application;
 
-import com.usuario.demo.controller.RequestException;
-import com.usuario.demo.controller.TipoCreditoController;
-import com.usuario.demo.controller.UsuarioController;
+import org.glassfish.jersey.server.ResourceConfig;
 
 import io.swagger.jaxrs.config.BeanConfig;
 
 @ApplicationPath("api")
-public class ApplicationConfig extends Application {
+public class ApplicationConfig extends ResourceConfig {
 	public ApplicationConfig() {
         BeanConfig beanConfig = new BeanConfig();
         beanConfig.setVersion("1.0.0");
@@ -23,16 +17,9 @@ public class ApplicationConfig extends Application {
         beanConfig.setResourcePackage("com.usuario.demo");
         beanConfig.setScan(true);
         beanConfig.setPrettyPrint(true);
+        register(io.swagger.jaxrs.listing.ApiListingResource.class);
+        register(io.swagger.jaxrs.listing.SwaggerSerializers.class);
+        packages("com.usuario.demo.controller");
     }
-	@Override
-	public Set<Class<?>> getClasses() {
-		Set<Class<?>> resources = new HashSet<Class<?>>();
-		resources.add(UsuarioController.class);
-		resources.add(RequestException.class);
-		resources.add(TipoCreditoController.class);
-		resources.add(io.swagger.jaxrs.listing.ApiListingResource.class);
-		resources.add(io.swagger.jaxrs.listing.SwaggerSerializers.class);
-		return resources;
-	}
 
 }

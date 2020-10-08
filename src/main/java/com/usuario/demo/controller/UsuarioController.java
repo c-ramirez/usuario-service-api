@@ -15,6 +15,7 @@ import javax.ws.rs.core.Response.Status;
 
 import com.usuario.demo.repository.usuario.Usuario;
 import com.usuario.demo.service.UsuarioService;
+import com.usuario.demo.service.exception.BussinesException;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -32,14 +33,14 @@ public class UsuarioController {
 
 	@POST
 	@Path("/login")
-	@ApiOperation(value = "Login de usuario", notes = "Campos obligatorios : usuario, clave", response = Usuario.class)
+	@ApiOperation(value = "Login de usuario", notes = "Campos obligatorios : usuario, clave", response = GenericResponse.class)
 	public Response login(@Valid Usuario usuario) {
 		GenericResponse response = new GenericResponse();
 		try {
 			response.setBody(usuarioService.login(usuario));
 			response.setMessage("El usuario se logeo correctamente");
 			return Response.ok(response).build();
-		} catch (Exception e) {
+		} catch (BussinesException e) {
 			response.getError().add(e.getMessage());
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(response).build();
 		}
@@ -47,14 +48,14 @@ public class UsuarioController {
 
 	@POST
 	@Path("")
-	@ApiOperation(value = "Creacion de usuario")
+	@ApiOperation(value = "Creacion de usuario", response = GenericResponse.class)
 	public Response creacionUsuario(@Valid Usuario usuario) {
 		GenericResponse response = new GenericResponse();
 		try {
 			usuarioService.crearUsuario(usuario);
 			response.setMessage("Se creó el usuario correctamente");
 			return Response.ok(response).build();
-		} catch (Exception e) {
+		} catch (BussinesException e) {
 			response.getError().add(e.getMessage());
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(response).build();
 		}
@@ -62,14 +63,14 @@ public class UsuarioController {
 
 	@PUT
 	@Path("")
-	@ApiOperation(value = "Actualizacion de usuario")
+	@ApiOperation(value = "Actualizacion de usuario", response = GenericResponse.class)
 	public Response actualizacionUsuario(@Valid Usuario usuario) {
 		GenericResponse response = new GenericResponse();
 		try {
 			usuarioService.actualizarUsuario(usuario);
 			response.setMessage("Se actualizó correctamente el usuario");
 			return Response.ok(response).build();
-		} catch (Exception e) {
+		} catch (BussinesException e) {
 			response.getError().add(e.getMessage());
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(response).build();
 		}
@@ -78,19 +79,15 @@ public class UsuarioController {
 
 	@GET
 	@Path("/{id}")
-	@ApiOperation(value = "Obtener usuario", response = Usuario.class)
+	@ApiOperation(value = "Obtener usuario", response = GenericResponse.class)
 	public Response obtenerUsuarioPorId(@PathParam("id") Integer id) {
 		GenericResponse response = new GenericResponse();
 		try {
 			Usuario usuario = usuarioService.obtenerUsuario(id);
-			if (usuario.getId() != null) {
-				response.setBody(usuario);
-				response.setMessage("Se encontro al usuario con ID:" + id);
-			} else {
-				response.setMessage("No se encontro al usuario con ID:" + id);
-			}
+			response.setBody(usuario);
+			response.setMessage("Se encontro al usuario con ID:" + id);
 			return Response.ok(response).build();
-		} catch (Exception e) {
+		} catch (BussinesException e) {
 			response.getError().add(e.getMessage());
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(response).build();
 		}
@@ -99,18 +96,14 @@ public class UsuarioController {
 
 	@DELETE
 	@Path("/{id}")
-	@ApiOperation(value = "Eliminar usuario")
+	@ApiOperation(value = "Eliminar usuario", response = GenericResponse.class)
 	public Response eliminarUsuario(@PathParam("id") Integer id) {
 		GenericResponse response = new GenericResponse();
 		try {
-			Integer rowAffected = usuarioService.eliminarUsuario(id);
-			if (rowAffected == 0) {
-				response.setMessage("No se elimino ningun usuario");
-			} else {
-				response.setMessage("Se eliminó al usuario correctamente");
-			}
+			usuarioService.eliminarUsuario(id);
+			response.setMessage("Se eliminó al usuario correctamente");
 			return Response.ok(response).build();
-		} catch (Exception e) {
+		} catch (BussinesException e) {
 			response.getError().add(e.getMessage());
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(response).build();
 		}

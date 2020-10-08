@@ -5,14 +5,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.usuario.demo.repository.GenericRepository;
-import com.usuario.demo.service.SqlUtil;
+import com.usuario.demo.service.exception.DatabaseException;
 
 public class TipoCreditoRepositoryImpl extends GenericRepository<TipoCredito> implements TipoCreditoRepository {
 
 	@Override
-	public List<TipoCredito> obtenerTiposCredito() throws Exception {
+	public List<TipoCredito> obtenerTiposCredito() throws DatabaseException {
 		try {
-			return makeQueryList("SELECT * from tipo_credito", (result) -> {
+			return makeQueryList("SELECT * from tipo_credito", result -> {
 				List<TipoCredito> tiposCredito = new ArrayList<>();
 				while (result.next()) {
 					TipoCredito tipo = new TipoCredito();
@@ -23,13 +23,7 @@ public class TipoCreditoRepositoryImpl extends GenericRepository<TipoCredito> im
 				return tiposCredito;
 			});
 		} catch (SQLException e) {
-			switch (SqlUtil.typeOfException(e)) {
-			case INTEGRITY_CONSTRAINT_VIOLATION:
-				throw new Exception("El nombre de usuario ya existe.");
-
-			default:
-				throw new Exception("Ocurrio un error desconocido");
-			}
+			throw new DatabaseException("Ocurrio un error desconocido");
 		}
 
 	}
