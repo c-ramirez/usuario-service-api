@@ -5,12 +5,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.usuario.demo.repository.GenericRepository;
+import com.usuario.demo.service.Messages;
 import com.usuario.demo.service.SqlUtil;
 import com.usuario.demo.service.exception.DatabaseException;
 import com.usuario.demo.service.exception.SqlExceptionType;
 
 public class UsuarioRepositoryImpl extends GenericRepository<Usuario> implements UsuarioRepository {
-
+	Messages messages = Messages.getInstance();
 	public Usuario obtenerUsuario(String usuario, String clave) throws DatabaseException {
 		try {
 			return makeQuery("SELECT * from usuario WHERE usuario=? AND clave=?", result -> {
@@ -27,7 +28,7 @@ public class UsuarioRepositoryImpl extends GenericRepository<Usuario> implements
 				return usuarioDB;
 			}, usuario, clave);
 		} catch (SQLException e) {
-			throw new DatabaseException("Ocurrio un error desconocido");
+			throw new DatabaseException(messages.getMessage("error.database.general"));
 		}
 	}
 
@@ -49,7 +50,7 @@ public class UsuarioRepositoryImpl extends GenericRepository<Usuario> implements
 				return usuarios;
 			});
 		} catch (SQLException e) {
-			throw new DatabaseException("Ocurrio un error desconocido");
+			throw new DatabaseException(messages.getMessage("error.database.general"));
 		}
 	}
 
@@ -70,7 +71,7 @@ public class UsuarioRepositoryImpl extends GenericRepository<Usuario> implements
 				return usuarioDB;
 			}, id);
 		} catch (SQLException e) {
-			throw new DatabaseException("Ocurrio un error desconocido");
+			throw new DatabaseException(messages.getMessage("error.database.general"));
 		}
 
 	}
@@ -81,7 +82,7 @@ public class UsuarioRepositoryImpl extends GenericRepository<Usuario> implements
 			return save("UPDATE Usuario set nombres=?,apellidos=? WHERE id =?", usuario.getNombres(),
 					usuario.getApellidos(), usuario.getId());
 		} catch (SQLException e) {
-			throw new DatabaseException("Ocurrio un error desconocido");
+			throw new DatabaseException(messages.getMessage("error.database.general"));
 		}
 
 	}
@@ -91,7 +92,7 @@ public class UsuarioRepositoryImpl extends GenericRepository<Usuario> implements
 		try {
 			return delete("id=?", id);
 		} catch (SQLException e) {
-			throw new DatabaseException("Ocurrio un error desconocido");
+			throw new DatabaseException(messages.getMessage("error.database.general"));
 		}
 
 	}
@@ -104,9 +105,9 @@ public class UsuarioRepositoryImpl extends GenericRepository<Usuario> implements
 		} catch (SQLException e) {
 			SqlExceptionType type = SqlUtil.typeOfException(e);
 			if (type == SqlExceptionType.INTEGRITY_CONSTRAINT_VIOLATION)
-				throw new DatabaseException("El nombre de usuario ya existe.");
+				throw new DatabaseException(messages.getMessage("error.database.usuario.usuario.unique"));
 			else
-				throw new DatabaseException("Ocurrio un error desconocido");
+				throw new DatabaseException(messages.getMessage("error.database.general"));
 		}
 	}
 

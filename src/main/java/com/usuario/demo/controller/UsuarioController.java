@@ -23,6 +23,7 @@ import javax.ws.rs.core.Response.Status;
 import com.usuario.demo.repository.usuario.Login;
 import com.usuario.demo.repository.usuario.Register;
 import com.usuario.demo.repository.usuario.Usuario;
+import com.usuario.demo.service.Messages;
 import com.usuario.demo.service.UsuarioService;
 import com.usuario.demo.service.exception.BussinesException;
 
@@ -37,11 +38,12 @@ public class UsuarioController {
 	UsuarioService usuarioService;
 	ValidatorFactory factory = null;
 	Validator validator = null;
-
+	Messages messages;
 	public UsuarioController() {
 		usuarioService = new UsuarioService();
 		factory = Validation.buildDefaultValidatorFactory();
 		validator = factory.getValidator();
+		messages = Messages.getInstance();
 	}
 
 	@POST
@@ -56,7 +58,7 @@ public class UsuarioController {
 		GenericResponse response = new GenericResponse();
 		try {
 			response.setBody(usuarioService.login(usuario));
-			response.setMessage("El usuario se logeo correctamente");
+			response.setMessage(messages.getMessage("info.usuario.login.ok"));
 			return Response.ok(response).build();
 		} catch (BussinesException e) {
 			response.getError().add(e.getMessage());
@@ -75,8 +77,8 @@ public class UsuarioController {
 		GenericResponse response = new GenericResponse();
 		try {
 			usuarioService.crearUsuario(usuario);
-			response.setMessage("Se creó el usuario correctamente");
-			return Response.ok(response).build();
+			response.setMessage(messages.getMessage("info.usuario.create.ok"));
+			return Response.status(Status.CREATED).entity(response).build();
 		} catch (BussinesException e) {
 			response.getError().add(e.getMessage());
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(response).build();
@@ -90,7 +92,7 @@ public class UsuarioController {
 		GenericResponse response = new GenericResponse();
 		try {
 			usuarioService.actualizarUsuario(usuario);
-			response.setMessage("Se actualizó correctamente el usuario");
+			response.setMessage(messages.getMessage("info.usuario.update.ok"));
 			return Response.ok(response).build();
 		} catch (BussinesException e) {
 			response.getError().add(e.getMessage());
@@ -107,7 +109,7 @@ public class UsuarioController {
 		try {
 			Usuario usuario = usuarioService.obtenerUsuario(id);
 			response.setBody(usuario);
-			response.setMessage("Se encontro al usuario con ID:" + id);
+			response.setMessage(messages.getMessage("info.usuario.find.ok",id));
 			return Response.ok(response).build();
 		} catch (BussinesException e) {
 			response.getError().add(e.getMessage());
@@ -123,7 +125,7 @@ public class UsuarioController {
 		GenericResponse response = new GenericResponse();
 		try {
 			usuarioService.eliminarUsuario(id);
-			response.setMessage("Se eliminó al usuario correctamente");
+			response.setMessage(messages.getMessage("info.usuario.delete.ok"));
 			return Response.ok(response).build();
 		} catch (BussinesException e) {
 			response.getError().add(e.getMessage());
