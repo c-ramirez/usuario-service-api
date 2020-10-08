@@ -6,12 +6,14 @@ import javax.validation.constraints.Size;
 
 public class Usuario {
 	Integer id;
-	@NotNull(message = "El nombre de usuario es obligatorio")
+	@NotNull(message = "{usuario.usuario.notNull}", groups = {Login.class,Register.class})
 	String usuario;
-	@NotNull(message = "La clave es obligatorio")
-	@Size(min = 8, max = 32,  message = "La clave debe tener entre {min} y {max} caracteres")
+	@NotNull(message = "{usuario.clave.notNull}", groups = {Login.class,Register.class})
+	@Size(min = 8, max = 32,  message = "{usuario.clave.size}", groups = {Login.class,Register.class})
 	String clave;
+	@NotNull(message = "{usuario.nombres.notNull}", groups = {Register.class})
 	String nombres;
+	@NotNull(message = "{usuario.apellidos.notNull}", groups = {Register.class})
 	String apellidos;
 	String rol;
 	Boolean activo;
