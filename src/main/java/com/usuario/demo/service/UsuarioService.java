@@ -1,6 +1,10 @@
 package com.usuario.demo.service;
 
 import java.sql.SQLException;
+import java.util.List;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.usuario.demo.repository.dao.UsuarioRepository;
 import com.usuario.demo.repository.entity.Usuario;
@@ -11,6 +15,7 @@ import com.usuario.demo.service.util.Messages;
 import com.usuario.demo.service.util.SqlUtil;
 
 public class UsuarioService {
+	final Logger log = LogManager.getLogger(UsuarioService.class);
 	UsuarioRepository usuarioRepository;
 	Messages messages;
 
@@ -38,7 +43,7 @@ public class UsuarioService {
 			try {
 				usuarioRepository.rollback();
 			} catch (SQLException e) {
-				e.printStackTrace();
+				log.error("Error en login ",e);
 				throw new BussinesException(messages.getMessage("error.database.general"));
 			}
 			throw new BussinesException(messages.getMessage("error.database.general"));
@@ -49,6 +54,7 @@ public class UsuarioService {
 		try {
 			usuarioRepository.save(usuario);
 		} catch (SQLException e) {
+			log.error("Error en save ",e);
 			SqlExceptionType type = SqlUtil.typeOfException(e);
 			if (type == SqlExceptionType.INTEGRITY_CONSTRAINT_VIOLATION)
 				throw new BussinesException(messages.getMessage("error.database.usuario.usuario.unique"));
@@ -64,6 +70,7 @@ public class UsuarioService {
 				throw new BussinesException(messages.getMessage("error.database.usuario.id.notFound", id));
 			return usuario;
 		} catch (SQLException e) {
+			log.error("Error en findById ",e);
 			throw new BussinesException(messages.getMessage("error.database.general"));
 		}
 	}
@@ -72,8 +79,9 @@ public class UsuarioService {
 		try {
 			Integer affectedRows = usuarioRepository.update(usuario);
 			if (affectedRows == 0)
-				throw new BussinesException(messages.getMessage("error.database.usuario.update"));
+				throw new BussinesException(messages.getMessage("error.database.entity.update"));
 		} catch (SQLException e) {
+			log.error("Error en update ",e);
 			throw new BussinesException(messages.getMessage("error.database.general"));
 		}
 	}
@@ -82,8 +90,17 @@ public class UsuarioService {
 		try {
 			Integer affectedRows = usuarioRepository.delete(id);
 			if (affectedRows == 0)
-				throw new BussinesException(messages.getMessage("error.database.usuario.delete"));
+				throw new BussinesException(messages.getMessage("error.database.entity.delete"));
 		} catch (SQLException e) {
+			log.error("Error en delete ",e);
+			throw new BussinesException(messages.getMessage("error.database.general"));
+		}
+	}
+	public List<Usuario> findAll() throws BussinesException {
+		try {
+			return usuarioRepository.findAll();
+		} catch (SQLException e) {
+			log.error("Error en findAll ",e);
 			throw new BussinesException(messages.getMessage("error.database.general"));
 		}
 	}

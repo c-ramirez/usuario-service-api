@@ -10,7 +10,11 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class SqlConnectionJndi implements SqlConnection{
+	final Logger log = LogManager.getLogger(SqlConnectionJndi.class);
 	private Connection connection = null;
 	Properties properties = new Properties();
 	public SqlConnectionJndi() {
@@ -27,7 +31,7 @@ public class SqlConnectionJndi implements SqlConnection{
 				connection = ds.getConnection();
 			}
 		}  catch (NamingException | IOException e) {
-			e.printStackTrace();
+			log.error(e);
 		} 
 		return connection;
 	}

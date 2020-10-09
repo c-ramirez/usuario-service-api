@@ -1,5 +1,6 @@
 package com.usuario.demo.controller;
 
+import java.util.List;
 import java.util.Set;
 
 import javax.validation.ConstraintViolation;
@@ -16,6 +17,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -35,6 +39,7 @@ import io.swagger.annotations.ApiOperation;
 @Api(tags = { "1.0" })
 @Path("/v1/usuario")
 public class UsuarioController {
+	final Logger log = LogManager.getLogger(UsuarioController.class);
 	UsuarioService usuarioService;
 	ObjectMapper objectMapper = null;
 	Messages messages;
@@ -48,7 +53,7 @@ public class UsuarioController {
 	@POST
 	@Path("/login")
 	@ApiOperation(value = "Login de usuario", notes = "Campos obligatorios : usuario, clave", response = GenericResponse.class)
-	public Response login(Usuario usuario) {
+	public Response login(Usuario usuario) {		
 		Set<ConstraintViolation<Usuario>> violations = ValidatorUtil.validation(usuario, Login.class);
 		if (!violations.isEmpty())
 			throw new ConstraintViolationException(violations);
@@ -77,7 +82,7 @@ public class UsuarioController {
 		GenericResponse response = new GenericResponse();
 		try {
 			usuarioService.save(usuario);
-			response.setMessage(messages.getMessage("info.usuario.create.ok"));
+			response.setMessage(messages.getMessage("info.entity.create.ok"));
 			return Response.status(Status.CREATED).entity(response).build();
 		} catch (BussinesException e) {
 			response.getError().add(e.getMessage());
@@ -92,7 +97,7 @@ public class UsuarioController {
 		GenericResponse response = new GenericResponse();
 		try {
 			usuarioService.update(usuario);
-			response.setMessage(messages.getMessage("info.usuario.update.ok"));
+			response.setMessage(messages.getMessage("info.entity.update.ok"));
 			return Response.ok(response).build();
 		} catch (BussinesException e) {
 			response.getError().add(e.getMessage());
@@ -109,7 +114,7 @@ public class UsuarioController {
 		try {
 			Usuario usuario = usuarioService.findById(id);
 			response.setBody(usuario);
-			response.setMessage(messages.getMessage("info.usuario.find.ok", id));
+			response.setMessage(messages.getMessage("info.entity.find.ok", id));
 			return Response.ok(objectMapper.writeValueAsString(response)).build();
 		} catch (BussinesException e) {
 			response.getError().add(e.getMessage());
@@ -128,10 +133,29 @@ public class UsuarioController {
 		GenericResponse response = new GenericResponse();
 		try {
 			usuarioService.delete(id);
-			response.setMessage(messages.getMessage("info.usuario.delete.ok"));
+			response.setMessage(messages.getMessage("info.entity.delete.ok"));
 			return Response.ok(response).build();
 		} catch (BussinesException e) {
 			response.getError().add(e.getMessage());
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(response).build();
+		}
+
+	}
+	@GET
+	@Path("")
+	@ApiOperation(value = "Obtener usuarios", response = GenericResponse.class)
+	public Response obtenerUsuarios() {
+		GenericResponse response = new GenericResponse();
+		try {
+			List<Usuario> usuarios = usuarioService.findAll();
+			response.setBody(usuarios);
+			response.setMessage(messages.getMessage("info.entity.findAll.ok"));
+			return Response.ok(objectMapper.writeValueAsString(response)).build();
+		} catch (BussinesException e) {
+			response.getError().add(e.getMessage());
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(response).build();
+		} catch (JsonProcessingException ex) {
+			response.getError().add(ex.getMessage());
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(response).build();
 		}
 

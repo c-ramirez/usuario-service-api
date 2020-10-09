@@ -3,6 +3,7 @@ package com.usuario.demo.repository.entity;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.usuario.demo.repository.validationgroup.Login;
 import com.usuario.demo.repository.validationgroup.Register;
 
@@ -21,9 +22,11 @@ public class Usuario {
 	String rol;
 	Boolean activo;
 	
+	@JsonIgnore
 	public boolean isEmpty() {
 		return id == null;
 	}
+	@JsonIgnore
 	public String getFullName() {
 		return nombres + apellidos;
 	}

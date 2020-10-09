@@ -6,7 +6,11 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class SqlConnectionDatasource implements SqlConnection{
+	final Logger log = LogManager.getLogger(SqlConnectionDatasource.class);
 	private Connection connection = null;
 	Properties properties = new Properties();
 	public SqlConnectionDatasource() {
@@ -25,9 +29,9 @@ public class SqlConnectionDatasource implements SqlConnection{
 				connection = DriverManager.getConnection(url, username, password);
 			}
 		} catch (ClassNotFoundException | SQLException ex) {
-			ex.printStackTrace();
+			log.error(ex);
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error(e);
 		} 
 		return connection;
 	}

@@ -7,9 +7,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.usuario.demo.service.util.SqlUtil;
 
 public abstract class GenericRepository<T> implements IGenericRepository<T> {
+	final Logger log = LogManager.getLogger(GenericRepository.class);
 	protected Connection connection;
 	protected SqlConnection sqlConnection;
 
@@ -18,7 +22,7 @@ public abstract class GenericRepository<T> implements IGenericRepository<T> {
 		try {
 			connection = sqlConnection.getConnection();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			log.error(e);
 		}
 	}
 
